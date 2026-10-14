@@ -3,3 +3,4 @@ dist/
 .env
 scripts/.cache/
 .playwright-mcp/
+.scratch/
