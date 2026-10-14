@@ -5,6 +5,34 @@ type Film = (typeof films)[number];
 type Round = { pot: string[]; shown: number; current: number; scoring: boolean; revealed: number[] };
 
 const FILMS_PER_PLAYER = 4;
+// Paket: Name -> IMDb-Genres bzw. TMDB-Keywords; ein Film gehört dazu, wenn er einen der Tags hat
+const PACKS: [string, string[]][] = [
+  ['Weihnachten', ['christmas']],
+  ['Halloween', ['halloween', 'Horror']],
+  ['Liebesfilme', ['Romance']],
+  ['Komödie', ['Comedy']],
+  ['Action', ['Action']],
+  ['Abenteuer', ['Adventure']],
+  ['Thriller', ['Thriller']],
+  ['Krimi', ['Crime']],
+  ['Mystery', ['Mystery']],
+  ['Science-Fiction', ['Sci-Fi']],
+  ['Fantasy', ['Fantasy']],
+  ['Animation', ['Animation']],
+  ['Familie', ['Family']],
+  ['Drama', ['Drama']],
+  ['Biografie & Geschichte', ['Biography', 'History']],
+  ['Krieg', ['War']],
+  ['Western', ['Western']],
+  ['Musik', ['Music', 'Musical']],
+  ['Sport', ['Sport']],
+  ['Dokumentation', ['Documentary']],
+];
+const inPacks = (packs: string[]) => {
+  const tags = PACKS.filter(([name]) => packs.includes(name)).flatMap(([, t]) => t);
+  return packs.length ? films.filter(f => f.tags.some(t => tags.includes(t))) : films;
+};
+const packSizes = new Map(PACKS.map(([name]) => [name, inPacks([name]).length]));
 const byId = new Map(films.map(f => [f.id, f]));
 const poster = (f: Film, size: 'w185' | 'w500') => `https://image.tmdb.org/t/p/${size}${f.poster}`;
 const nr = (i: number) => String(i + 1).padStart(2, '0');
@@ -28,16 +56,19 @@ function shuffle<T>(items: T[]) {
 export default function App() {
   const [round, setRound] = usePersisted<Round | null>('round', null);
   const [played, setPlayed] = usePersisted<string[]>('played', []);
+  const [packs, setPacks] = usePersisted<string[]>('packs', []);
+  const pool = inPacks(packs);
 
   function draw(players: number) {
     const size = players * FILMS_PER_PLAYER;
     const playedSet = new Set(played);
-    let available = films.filter(f => !playedSet.has(f.id));
-    // Pool erschöpft: gespielte Filme automatisch freigeben
+    let available = pool.filter(f => !playedSet.has(f.id));
+    // Auswahl erschöpft: gespielte Filme dieser Auswahl automatisch freigeben
     const reset = available.length < size;
-    if (reset) available = films;
+    if (reset) available = pool;
     const pot = shuffle(available).slice(0, size).map(f => f.id);
-    setPlayed([...(reset ? [] : played), ...pot]);
+    const poolIds = new Set(pool.map(f => f.id));
+    setPlayed([...played.filter(id => !(reset && poolIds.has(id))), ...pot]);
     setRound({ pot, shown: 1, current: 0, scoring: false, revealed: [] });
   }
 
@@ -56,7 +87,16 @@ export default function App() {
         <div className="strip" />
       </header>
       <main>
-        {!round && <Setup played={played.length} onDraw={draw} onReset={() => confirm('Alle gespielten Filme wieder freigeben?') && setPlayed([])} />}
+        {!round && (
+          <Setup
+            pool={pool.length}
+            played={pool.filter(f => played.includes(f.id)).length}
+            packs={packs}
+            setPacks={setPacks}
+            onDraw={draw}
+            onReset={() => confirm('Alle gespielten Filme wieder freigeben?') && setPlayed([])}
+          />
+        )}
         {round && !round.scoring && <Auction round={round} setRound={setRound} />}
         {round?.scoring && <Scoring round={round} setRound={setRound} onNew={() => setRound(null)} />}
       </main>
@@ -67,8 +107,19 @@ export default function App() {
   );
 }
 
-function Setup({ played, onDraw, onReset }: { played: number; onDraw: (players: number) => void; onReset: () => void }) {
+type SetupProps = {
+  pool: number;
+  played: number;
+  packs: string[];
+  setPacks: (packs: string[]) => void;
+  onDraw: (players: number) => void;
+  onReset: () => void;
+};
+
+function Setup({ pool, played, packs, setPacks, onDraw, onReset }: SetupProps) {
   const [players, setPlayers] = useState(4);
+  const size = players * FILMS_PER_PLAYER;
+  const toggle = (name: string) => setPacks(packs.includes(name) ? packs.filter(p => p !== name) : [...packs, name]);
   return (
     <section className="setup">
       <h2>Wie viele Spieler?</h2>
@@ -77,9 +128,20 @@ function Setup({ played, onDraw, onReset }: { played: number; onDraw: (players: 
           <button key={n} className={n === players ? 'active' : ''} onClick={() => setPlayers(n)}>{n}</button>
         ))}
       </div>
-      <button className="primary" onClick={() => onDraw(players)}>Pott ziehen ({players * FILMS_PER_PLAYER} Filme)</button>
+      <h2>Pakete</h2>
+      <div className="packs">
+        <button className={packs.length ? '' : 'active'} onClick={() => setPacks([])}>Alle Filme</button>
+        {PACKS.map(([name]) => (
+          <button key={name} className={packs.includes(name) ? 'active' : ''} onClick={() => toggle(name)}>
+            {name} <small>{packSizes.get(name)}</small>
+          </button>
+        ))}
+      </div>
+      <button className="primary" disabled={pool < size} onClick={() => onDraw(players)}>
+        {pool < size ? `Zu wenige Filme (${pool})` : `Pott ziehen (${size} Filme)`}
+      </button>
       <p className="hint">
-        {films.length} Filme im Filmpool, {played} bereits gespielt.
+        {pool} Filme in der Auswahl, {played} bereits gespielt.
         {played > 0 && <> <button className="link" onClick={onReset}>Zurücksetzen</button></>}
       </p>
     </section>

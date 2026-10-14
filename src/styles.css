@@ -46,6 +46,10 @@ button.active { outline: 2px solid var(--gold); }
 .players { display: flex; gap: 0.6rem; }
 .players button { width: 3.4rem; height: 3.4rem; font-size: 1.3rem; }
 .hint { color: #aab2c0; font-size: 0.9rem; }
+.packs { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; }
+.packs button { padding: 0.45rem 0.8rem; border-radius: 999px; font-size: 0.95rem; }
+.packs button.active { background: var(--red); border-color: var(--red); outline: none; }
+.packs small { opacity: 0.6; margin-left: 0.2rem; }
 
 .auction { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem; }
 .number { margin: 0; color: var(--gold); font-weight: 700; letter-spacing: 0.08em; }

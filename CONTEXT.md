@@ -24,8 +24,12 @@ _Avoid_: Karte, Movie
 Alle Kinofilme mit mindestens 25.000 IMDb-Stimmen, aus denen zufällig gezogen wird.
 _Avoid_: Datenbank, Katalog
 
+**Paket**:
+Ein thematischer Ausschnitt des Filmpools, nach Genre (z. B. Liebesfilme) oder Anlass (Weihnachten, Halloween). Sind mehrere Pakete gewählt, wird aus allen zusammen gezogen; ohne Auswahl aus dem ganzen Filmpool.
+_Avoid_: Expansion Pack, Filter, Kategorie
+
 **Pott**:
-Die für eine Runde gezogenen Filme, genau 4 pro Spieler; werden einzeln in zufälliger Reihenfolge aufgedeckt, ohne Vorschau auf die nächsten.
+Die für eine Runde aus den gewählten Paketen gezogenen Filme, genau 4 pro Spieler; werden einzeln in zufälliger Reihenfolge aufgedeckt, ohne Vorschau auf die nächsten.
 _Avoid_: Stapel, Deck, Pool
 
 **Filmnummer**:
