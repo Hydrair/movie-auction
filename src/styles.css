@@ -50,9 +50,13 @@ button.active { outline: 2px solid var(--gold); }
 .auction { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem; }
 .number { margin: 0; color: var(--gold); font-weight: 700; letter-spacing: 0.08em; }
 .poster { width: min(70vw, 320px); aspect-ratio: 2 / 3; object-fit: cover; border-radius: 8px; box-shadow: 0 8px 30px #000a; }
-.original { margin: 0; color: #aab2c0; font-style: italic; }
+.info { height: 9rem; display: flex; flex-direction: column; justify-content: center; gap: 0.25rem; overflow: hidden; }
+.info h2 { margin: 0; font-size: 1.35rem; line-height: 1.2; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.original { margin: 0; color: #aab2c0; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .year { margin: 0; font-size: 1.2rem; }
+.hidden { visibility: hidden; }
 .nav { display: flex; gap: 0.6rem; margin: 0.6rem 0; }
+.scoring .nav { margin: 0; }
 .thumbs { display: flex; gap: 0.4rem; overflow-x: auto; width: 100%; padding: 0.6rem 0; }
 .thumbs button { position: relative; padding: 0; flex: 0 0 52px; overflow: hidden; }
 .thumbs img { aspect-ratio: 2 / 3; object-fit: cover; }

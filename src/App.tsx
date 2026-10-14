@@ -102,18 +102,18 @@ function Auction({ round, setRound }: RoundProps) {
     <section className="auction">
       <p className="number">Film {nr(current)} / {pot.length}</p>
       <img className="poster" src={poster(film, 'w500')} alt="" />
-      <h2>{film.title}</h2>
-      {film.originalTitle !== film.title && <p className="original">{film.originalTitle}</p>}
-      <p className="year">{film.year}</p>
+      <div className="info">
+        <h2>{film.title}</h2>
+        {film.originalTitle !== film.title && <p className="original">{film.originalTitle}</p>}
+        <p className="year">{film.year}</p>
+      </div>
       <div className="nav">
         <button disabled={current === 0} onClick={() => setRound({ ...round, current: current - 1 })}>← Zurück</button>
         {current < pot.length - 1 && <button className="primary" onClick={next}>Nächster Film →</button>}
       </div>
-      {allShown && (
-        <button className="primary" onClick={() => confirm('Alle Auktionen beendet? Weiter zur Endwertung.') && setRound({ ...round, scoring: true })}>
-          Zur Endwertung
-        </button>
-      )}
+      <button className={allShown ? 'primary' : 'primary hidden'} onClick={() => confirm('Alle Auktionen beendet? Weiter zur Endwertung.') && setRound({ ...round, scoring: true })}>
+        Zur Endwertung
+      </button>
       <div className="thumbs">
         {pot.slice(0, shown).map((id, i) => (
           <button key={id} className={i === current ? 'active' : ''} onClick={() => setRound({ ...round, current: i })}>
@@ -130,12 +130,16 @@ function Scoring({ round, setRound, onNew }: RoundProps & { onNew: () => void })
   const { pot, revealed } = round;
   const nextHidden = pot.findIndex((_, i) => !revealed.includes(i));
   const reveal = (i: number) => !revealed.includes(i) && setRound({ ...round, revealed: [...revealed, i] });
+  const revealAll = () => setRound({ ...round, revealed: pot.map((_, i) => i) });
 
   return (
     <section className="scoring">
       <h2>Endwertung</h2>
       {nextHidden >= 0
-        ? <button className="primary" onClick={() => reveal(nextHidden)}>Nächsten aufdecken</button>
+        ? <div className="nav">
+            <button className="primary" onClick={() => reveal(nextHidden)}>Nächsten aufdecken</button>
+            <button onClick={revealAll}>Alle aufdecken</button>
+          </div>
         : <button className="primary" onClick={onNew}>Neue Runde</button>}
       <div className="grid">
         {pot.map((id, i) => {
